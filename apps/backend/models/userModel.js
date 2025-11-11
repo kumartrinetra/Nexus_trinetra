@@ -21,7 +21,6 @@ const userSchema = new Schema(
       type: String,
       required: [true, "Password is required"],
       // Note: You must hash this password before saving!
-      // Use a library like 'bcrypt' in your user controller.
     },
     phoneNumber: {
       type: String,
@@ -29,8 +28,13 @@ const userSchema = new Schema(
       sparse: true, // Allows multiple nulls, but unique if provided
     },
 
+    // 👇👇 ADD THIS FIELD (for JWT refresh tokens)
+    refreshToken: {
+      type: String,
+      default: null,
+    },
+
     // --- Relationships ---
-    // This is the CRITICAL part. It links this user to their tasks and places.
     tasks: [
       {
         type: Schema.Types.ObjectId,
@@ -47,13 +51,11 @@ const userSchema = new Schema(
     // --- Pillar 3: The Proactive Coach ---
     preferences: {
       focusMode: {
-        // For the "Anti-Distraction Nudge"
         type: Boolean,
         default: false,
       },
       wellnessGoals: {
-        // For the "Wellness Watchdog"
-        type: [String], // e.g., ["Get 8 hours sleep", "Walk 30 mins"]
+        type: [String],
         default: [],
       },
     },
@@ -61,7 +63,6 @@ const userSchema = new Schema(
     // --- Pillar 4: The Reflective Partner ---
     socialMemory: [
       {
-        // For the "Social Memory" feature
         name: String,
         relationship: String,
         birthday: Date,
@@ -70,7 +71,6 @@ const userSchema = new Schema(
     ],
     journalEntries: [
       {
-        // For the "Daily Debrief"
         content: String,
         date: { type: Date, default: Date.now },
         mood: { type: String, enum: ["Happy", "Neutral", "Sad", "Stressed"] },
@@ -78,13 +78,10 @@ const userSchema = new Schema(
     ],
   },
   {
-    // This adds 'createdAt' and 'updatedAt' fields automatically
-    timestamps: true,
+    timestamps: true, // Adds createdAt, updatedAt automatically
   }
 );
 
 const UserModel = mongoose.model("User", userSchema);
-// Note: Mongoose conventions use "User" (singular, capitalized)
-// It will create a collection called "users"
 
 export default UserModel;
