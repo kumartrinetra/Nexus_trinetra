@@ -16,9 +16,9 @@ def predict_context(req: TF3ContextRequest):
     input_values = [
         req.weather_risk,
         req.traffic_delay,
+        req.task_importance,
         req.distance_to_location,
-        req.battery_level,
-        req.task_importance
+        req.battery_level
     ]
 
     score = run_tflite_model(interpreter, input_values)

@@ -13,13 +13,13 @@ def predict_performance(req: TF5PerformanceRequest):
     interpreter = MODELS["tf5"]
 
     input_values = [
-    req.task_priority,
-    req.focus_score,
-    req.context_score,
-    req.wellness_score,
     req.task_completion_rate,
+    req.avg_task_priority,
+    req.focus_score_avg,
+    req.distraction_prob_avg,
+    req.context_success_rate,
+    req.wellness_score,
     req.sleep_deviation_hours,
-    req.fatigue_score  # ✅ ADDED
 ]
 
     score = run_tflite_model(interpreter, input_values)
