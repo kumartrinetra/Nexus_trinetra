@@ -52,14 +52,14 @@ export const deleteUser = async (req, res) => {
 /**
  * 👥 Get all users (Admin only, optional)
  */
-export const getAllUsers = async (req, res) => {
-  try {
-    const users = await UserModel.find().select("-password");
-    res.status(200).json({ success: true, count: users.length, users });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
+// export const getAllUsers = async (req, res) => {
+//   try {
+//     const users = await UserModel.find().select("-password");
+//     res.status(200).json({ success: true, count: users.length, users });
+//   } catch (err) {
+//     res.status(500).json({ success: false, message: err.message });
+//   }
+// };
 
 /**
  * 👥 Get all users (Admin only, optional)

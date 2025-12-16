@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 import { dbConnect } from "./utils/dbConnect.js";
 import taskRoutes from "./routes/taskRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 
 import {
   findNearbyTasks,
@@ -33,6 +34,7 @@ const io = new SocketIOServer(server, {
 // REST APIs
 app.use("/api/tasks", taskRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/auth",authRoutes);
 
 // Socket events
 io.on("connection", (socket) => {
