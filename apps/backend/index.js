@@ -1,5 +1,6 @@
 import express from "express";
 import http from "http";
+import cors from "cors";
 import { Server as SocketIOServer } from "socket.io";
 import dotenv from "dotenv";
 
@@ -16,7 +17,9 @@ import {
 dotenv.config();
 
 const app = express();
+app.use(cors());
 app.use(express.json());
+
 
 const port = process.env.PORT || 3000;
 
