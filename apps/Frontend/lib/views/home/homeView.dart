@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
+import 'package:nexus_frontend/controllers/task/taskController.dart';
+import 'package:nexus_frontend/controllers/user/userController.dart';
 import 'package:nexus_frontend/models/taskModel.dart';
 import 'package:nexus_frontend/utils/homeScreenOutlineButton.dart';
 import 'package:nexus_frontend/widgets/sliverAppBar.dart';
@@ -33,9 +35,19 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  greetingCard("Shashank"),
+                  Consumer(
+                    builder: (context, ref, child) {
+                      final user = ref.watch(userControllerProvider);
+                      return greetingCard(user.currentUser?.name ?? "Guest");
+                    },
+                  ),
                   SizedBox(height: 15.r),
-                  aiInsightCard("insight", context),
+                  Consumer(
+                    builder: (context, ref, child) {
+                      final aiInsight = ref.watch(userControllerProvider);
+                      return aiInsightCard(aiInsight.aiInsight, context);
+                    },
+                  ),
                   SizedBox(height: 15.r),
 
                   Text(
@@ -48,81 +60,59 @@ class _HomeViewState extends ConsumerState<HomeView> {
                     ),
                   ),
                   SizedBox(height: 15.r),
-
-                  TaskCard(
-                    TaskModel(
-                      title:
-                          "Complete Cyber Security Assignment",
-                      priority: "high",
-                    ),
-                    context,
+                  Consumer(
+                    builder: (context, ref, child) {
+                      final allTasks = ref.watch(taskControllerProvider);
+                      return ListView.builder(
+                        itemCount: allTasks?.length ?? 0,
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          return Column(
+                            children: [
+                              TaskCard(
+                                allTasks?[index] ?? TaskModel(title: "title"),
+                                context,
+                              ),
+                              SizedBox(height: 5.r),
+                            ],
+                          );
+                        },
+                      );
+                    },
                   ),
-
-                  SizedBox(
-                    height: 5.r,
-                  ),
-
-                  TaskCard(
-                    TaskModel(
-                      title:
-                      "Play Cricket",
-                      priority: "Low",
-                    ),
-                    context,
-                  ),
-
-                  SizedBox(
-                    height: 5.r,
-                  ),
-
-                  TaskCard(
-                    TaskModel(
-                      title:
-                      "Play Cricket",
-                      priority: "Low",
-                    ),
-                    context,
-                  ),
-                  SizedBox(
-                    height: 5.r,
-                  ),
-
-                  TaskCard(
-                    TaskModel(
-                      title:
-                      "Play Cricket",
-                      priority: "Low",
-                    ),
-                    context,
-                  ),
-                  SizedBox(
-                    height: 15.r,
-                  ),
+                  SizedBox(height: 15.r),
                   Column(
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          HomeScreenOutlinedButton("assets/images/loginIcon.png", "Add Task"),
-                          SizedBox(
-                            width: 5.r,
+                          HomeScreenOutlinedButton(
+                            "assets/images/loginIcon.png",
+                            "Add Task",
                           ),
-                          HomeScreenOutlinedButton("assets/images/loginIcon.png", "Start Focus"),
+                          SizedBox(width: 5.r),
+                          HomeScreenOutlinedButton(
+                            "assets/images/loginIcon.png",
+                            "Start Focus",
+                          ),
                         ],
                       ),
-                      SizedBox(
-                        height: 10.r,
-                      ),
+                      SizedBox(height: 10.r),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          HomeScreenOutlinedButton("assets/images/loginIcon.png", "View Map"),
-                          SizedBox(
-                            width: 5.r,
+                          HomeScreenOutlinedButton(
+                            "assets/images/loginIcon.png",
+                            "View Map",
                           ),
-                          HomeScreenOutlinedButton("assets/images/loginIcon.png", "Analytics"),
+                          SizedBox(width: 5.r),
+                          HomeScreenOutlinedButton(
+                            "assets/images/loginIcon.png",
+                            "Analytics",
+                          ),
                         ],
-                      )
+                      ),
                     ],
                   ),
                 ],

@@ -9,26 +9,36 @@ class AuthService{
   
    Future<UserModel?> registerUser(UserModel user) async
   {
+
     var url = Uri.parse("${baseUrl}register");
 
     try{
       final body = user.toJson();
       final res = await http.post(url, headers: {'Content-Type': 'application/json'}, body: json.encode(body));
 
+      print(res.statusCode);
+
       if(res.statusCode == 201)
         {
+          print("Success");
           final data = jsonDecode(res.body);
 
-          UserModel myUser = UserModel.fromJson(data);
+          UserModel myUser = UserModel.fromJson(data["user"]);
           return myUser;
         }
+
+      else{
+        print(res.body);
+      }
       
     }
         catch(err)
     {
+      print(err);
       Exception(err);
     }
 
+    print("null");
     return null;
   }
 
@@ -36,18 +46,24 @@ class AuthService{
   {
     var url = Uri.parse("${baseUrl}login");
 
+
+
     try{
-      final  body = {"email" : email, "pasword" : password};
+      final  body = {"email" : email, "password" : password};
       
       final res = await http.post(url, headers: {'Content-Type': 'application/json'}, body: json.encode(body));
 
-      if(res.statusCode == 201)
+      if(res.statusCode == 200)
         {
-          final data = res.body;
-          UserModel currUser = UserModel.fromJson(jsonDecode(data));
+          final data = jsonDecode(res.body);
+          UserModel currUser = UserModel.fromJson(jsonDecode(data["user"]));
 
           return currUser;
         }
+
+      else{
+        print(res.body);
+      }
 
 
     }

@@ -9,25 +9,41 @@ final authServiceProvider = Provider<AuthService>((ref) {
 });
 
 
-final userProvider = StateNotifierProvider<UserNotifier, UserModel?>((ref) {
+final userProvider = StateNotifierProvider<UserNotifier, AsyncValue<UserModel?>>((ref) {
   return UserNotifier(ref.read(authServiceProvider));
 });
 
 
-class UserNotifier extends StateNotifier<UserModel?>{
+class UserNotifier extends StateNotifier<AsyncValue<UserModel?>>{
   final AuthService authService;
 
-  UserNotifier(this.authService):super(null);
+  UserNotifier(this.authService):super(AsyncValue.data(null));
 
   Future<void> registerUser(UserModel newUser) async
   {
+    state = const AsyncValue.loading();
     try{
       final user = await authService.registerUser(newUser);
-      state = user;
+      state = AsyncValue.data(user);
     }
-        catch(err)
+        catch(err, st)
     {
-      state = null;
+      state = AsyncValue.error(err.toString(), st);
     }
   }
+
+
+  Future<void> loginUser(String email, String password) async
+  {
+    state = AsyncValue.loading();
+    try{
+      final user = await authService.loginUser(email, password);
+      state = AsyncValue.data(user);
+    }
+    catch(err, st)
+    {
+      state = AsyncValue.error(err.toString(), st);
+    }
+  }
+
 }

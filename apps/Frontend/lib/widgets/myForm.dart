@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:nexus_frontend/controllers/auth/authController.dart';
 import 'package:nexus_frontend/services/providers/textFieldProviders.dart';
 import 'package:nexus_frontend/utils/image_link.dart';
+import 'package:nexus_frontend/views/auth/loginView.dart';
+import 'package:nexus_frontend/views/auth/registerView.dart';
 import 'package:nexus_frontend/widgets/gradientButton.dart';
 
 SliverToBoxAdapter customForm(
@@ -11,13 +14,17 @@ SliverToBoxAdapter customForm(
   GlobalKey<FormState> formKey,
   String instruction,
   String buttonName2,
+  BuildContext context,
+  Function() onPress,
+  List<TextEditingController> textEditingControllers,
+    AuthStatus authState
 ) {
   return SliverToBoxAdapter(
     child: Center(
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.r),
         child: Card(
-          elevation: .2,
+          elevation: .2.r,
           color: Color(0xffFDFEFD),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
@@ -25,37 +32,44 @@ SliverToBoxAdapter customForm(
               key: formKey,
               child: Column(
                 children: [
-                  ...fields.map((label) {
-                    return Column(
-                      children: [
-                        label == "Password"
-                            ? passwordField(label)
-                            : TextFormField(
-                              decoration: InputDecoration(
-                                prefixIcon: customPrefixIcon(
-                                  ImageLink.imageLink[label.toLowerCase()] ??
-                                      "",
-                                ),
-                                hintText: label,
-                                hintStyle: TextStyle(fontSize: 14.r),
-                                border: UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Color(0xff667EEA),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: fields.length,
+                    itemBuilder: (context, index) {
+                      return Column(
+                        children: [
+                          fields[index] == "Password"
+                              ? passwordField(fields[index], textEditingControllers[index])
+                              : TextFormField(
+                            controller: textEditingControllers[index],
+                                decoration: InputDecoration(
+                                  prefixIcon: customPrefixIcon(
+                                    ImageLink.imageLink[fields[index]
+                                            .toLowerCase()] ??
+                                        "",
+                                  ),
+                                  hintText: fields[index],
+                                  hintStyle: TextStyle(fontSize: 14.r),
+                                  border: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Color(0xff667EEA),
+                                    ),
                                   ),
                                 ),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return "This field can't be empty";
+                                  }
+                                  return null;
+                                },
                               ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return "This field can't be empty";
-                                }
-                                return null;
-                              },
-                            ),
 
-                        SizedBox(height: 20.r),
-                      ],
-                    );
-                  }),
+                          SizedBox(height: 20.r),
+                        ],
+                      );
+                    },
+                  ),
 
                   SizedBox(height: 5.r),
 
@@ -64,9 +78,10 @@ SliverToBoxAdapter customForm(
                     child: GradientButton(
                       onPressed: () {
                         formKey.currentState?.validate();
+                        onPress();
                       },
                       height: 35.r,
-                      child: Text(
+                      child: authState == "loading" ? CircularProgressIndicator():  Text(
                         buttonName1,
                         style: TextStyle(
                           color: Colors.white,
@@ -79,7 +94,7 @@ SliverToBoxAdapter customForm(
 
                   SizedBox(height: 5.r),
 
-                  moreInstructionWidget(instruction, buttonName2),
+                  moreInstructionWidget(instruction, buttonName2, context),
                 ],
               ),
             ),
@@ -90,13 +105,23 @@ SliverToBoxAdapter customForm(
   );
 }
 
-Row moreInstructionWidget(String instruction, String buttonName) {
+Row moreInstructionWidget(String instruction, String buttonName, BuildContext context) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
       Text("$instruction? "),
       TextButton(
-        onPressed: () {},
+        onPressed: () {
+          if(buttonName == "Register")
+            {
+              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) {
+                return RegisterView();
+              }));
+            }
+          else{
+            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) {return LoginView();}));
+          }
+        },
         style: ButtonStyle(
           padding: WidgetStatePropertyAll(
             EdgeInsets.symmetric(horizontal: 0, vertical: 0),
@@ -108,12 +133,13 @@ Row moreInstructionWidget(String instruction, String buttonName) {
   );
 }
 
-Consumer passwordField(String label) {
+Consumer passwordField(String label, TextEditingController passwordController) {
   return Consumer(
     builder: (context, ref, child) {
       final currentState = ref.watch(passwordProvider);
       return TextFormField(
         obscureText: currentState,
+        controller: passwordController,
         decoration: InputDecoration(
           prefixIcon: customPrefixIcon(ImageLink.imageLink["password"] ?? ""),
           hintText: label,
