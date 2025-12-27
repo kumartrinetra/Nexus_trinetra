@@ -4,6 +4,8 @@ import UserModel from "../models/userModel.js";
 import mongoose from "mongoose";
 
 export const createTask = async (req, res) => {
+
+  
   const {
     title,
     description,
@@ -16,8 +18,13 @@ export const createTask = async (req, res) => {
     subtasks,
   } = req.body;
 
+  //date Typecasting from Dart to JS
+  const finalDueDate = Date(`${dueDate["year"]}-${dueDate["month"]}-${dueDate["day"]}`);
+
   // req.user.id comes from the 'protect' middleware
   const userId = req.user.id; 
+  console.log(userId);
+  
 
   if (!title) {
     // As per PDF, validation errors are 400
@@ -60,7 +67,7 @@ export const createTask = async (req, res) => {
       title,
       description,
       priority,
-      dueDate,
+      finalDueDate,
       estimatedDuration,
       category,
       tags,
