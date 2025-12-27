@@ -8,8 +8,6 @@ import { limitUserEntries } from "../utils/limitUserEntries.js";
  * CREATE TASK
  */
 export const createTask = async (req, res) => {
-
-  
   const {
     title,
     description,
@@ -22,30 +20,20 @@ export const createTask = async (req, res) => {
     subtasks,
   } = req.body;
 
-  //date Typecasting from Dart to JS
-  const finalDueDate = Date(`${dueDate["year"]}-${dueDate["month"]}-${dueDate["day"]}`);
-
-  // req.user.id comes from the 'protect' middleware
-  const userId = req.user.id; 
-  console.log(userId);
-  
+  const userId = req.user.id;
 
   if (!title) {
     return res.status(400).json({
       success: false,
-      error: {
-        code: "VALIDATION_ERROR",
-        message: "Title is required.",
-      },
+      error: { code: "VALIDATION_ERROR", message: "Title is required." },
     });
   }
 
   try {
     let placeId = null;
 
-    // ---------- HANDLE LINKED LOCATION ----------
     if (linkedLocation?.lat && linkedLocation?.lng) {
-      const savedPlace = await PlaceModel.create({
+      const place = await PlaceModel.create({
         user: userId,
         name: linkedLocation.name || "Task Location",
         location: {
@@ -55,25 +43,21 @@ export const createTask = async (req, res) => {
         geofenceRadiusMeters: linkedLocation.radius || 100,
       });
 
-      placeId = savedPlace._id;
+      placeId = place._id;
 
-      // Add place reference to user
       await UserModel.findByIdAndUpdate(userId, {
-        $push: { savedPlaces: savedPlace._id },
+        $push: { savedPlaces: place._id },
       });
 
-      // Trim places (non-blocking)
-      limitUserEntries(PlaceModel, userId, 20)
-        .catch(err => console.error("Place trim failed:", err));
+      limitUserEntries(PlaceModel, userId, 20).catch(console.error);
     }
 
-    // ---------- CREATE TASK ----------
     const task = await TaskModel.create({
       user: userId,
       title,
       description,
       priority,
-      finalDueDate,
+      dueDate,
       estimatedDuration,
       category,
       tags,
@@ -82,14 +66,11 @@ export const createTask = async (req, res) => {
       status: "Pending",
     });
 
-    // Push task reference FIRST
     await UserModel.findByIdAndUpdate(userId, {
       $push: { tasks: task._id },
     });
 
-    // Trim tasks (non-blocking)
-    limitUserEntries(TaskModel, userId, 20)
-      .catch(err => console.error("Task trim failed:", err));
+    limitUserEntries(TaskModel, userId, 20).catch(console.error);
 
     return res.status(201).json({
       success: true,
@@ -129,13 +110,6 @@ export const getAllUserTasks = async (req, res) => {
       query.priority =
         req.query.priority.charAt(0).toUpperCase() +
         req.query.priority.slice(1);
-    }
-
-    if (req.query.date) {
-      const start = new Date(req.query.date);
-      const end = new Date(start);
-      end.setDate(end.getDate() + 1);
-      query.dueDate = { $gte: start, $lt: end };
     }
 
     const limit = Number(req.query.limit) || 50;
@@ -212,33 +186,12 @@ export const getTaskById = async (req, res) => {
 
   return res.status(200).json({
     success: true,
-    data: {
-      id: task._id,
-      title: task.title,
-      description: task.description,
-      status: task.status.toLowerCase(),
-      priority: task.priority.toLowerCase(),
-      dueDate: task.dueDate,
-      estimatedDuration: task.estimatedDuration,
-      category: task.category,
-      tags: task.tags,
-      subtasks: task.subtasks,
-      linkedLocation: task.location
-        ? {
-            name: task.location.name,
-            lat: task.location.location.coordinates[1],
-            lng: task.location.location.coordinates[0],
-            radius: task.location.geofenceRadiusMeters,
-          }
-        : null,
-      createdAt: task.createdAt,
-      updatedAt: task.updatedAt,
-    },
+    data: task,
   });
 };
 
 /**
- * UPDATE TASK
+ * UPDATE TASK ✅ (THIS FIXES YOUR CURRENT ERROR)
  */
 export const updateTask = async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
@@ -271,6 +224,44 @@ export const updateTask = async (req, res) => {
       id: task._id,
       status: task.status.toLowerCase(),
       updatedAt: task.updatedAt,
+    },
+  });
+};
+
+/**
+ * MARK TASK COMPLETE
+ */
+export const markTaskComplete = async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(400).json({
+      success: false,
+      error: { code: "VALIDATION_ERROR", message: "Invalid Task ID." },
+    });
+  }
+
+  const task = await TaskModel.findById(req.params.id);
+
+  if (!task)
+    return res.status(404).json({
+      success: false,
+      error: { code: "NOT_FOUND", message: "Task not found." },
+    });
+
+  if (task.user.toString() !== req.user.id)
+    return res.status(403).json({
+      success: false,
+      error: { code: "FORBIDDEN", message: "Not authorized." },
+    });
+
+  task.status = "Completed";
+  await task.save();
+
+  return res.status(200).json({
+    success: true,
+    data: {
+      id: task._id,
+      status: "completed",
+      completedAt: new Date(),
     },
   });
 };
