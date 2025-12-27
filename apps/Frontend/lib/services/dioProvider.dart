@@ -9,7 +9,7 @@ final dioProvider = Provider<Dio>((ref) {
 
   final dio = Dio(
     BaseOptions(
-      baseUrl: "http://10.180.140.75:3000/api/",
+      baseUrl: "http://10.242.158.75:3000/api/",
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10)
     )

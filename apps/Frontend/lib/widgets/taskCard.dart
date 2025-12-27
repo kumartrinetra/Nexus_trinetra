@@ -3,56 +3,54 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nexus_frontend/models/taskModel.dart';
 import 'package:nexus_frontend/utils/colorPallete.dart';
 
-Flexible TaskCard(TaskModel myTask, BuildContext context) {
-  return Flexible(
-    child: Card(
-      child: Container(
-        width: MediaQuery.of(context).size.width,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: Color(0xfff8f9fa),
-          border: BorderDirectional(
-            start: BorderSide(
-              width: 4,
-              color: Color(0xff667eea),
-              strokeAlign: -1,
-            ),
+Card TaskCard(TaskModel myTask, BuildContext context) {
+  return Card(
+    child: Container(
+      width: MediaQuery.of(context).size.width,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Color(0xfff8f9fa),
+        border: BorderDirectional(
+          start: BorderSide(
+            width: 4,
+            color: Color(0xff667eea),
+            strokeAlign: -1,
           ),
         ),
+      ),
 
-        child: Padding(
-          padding: EdgeInsets.all(20.r),
-          child: Column(
-            //mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Flexible(fit: FlexFit.tight, child: Text(myTask.title, style: TextStyle(
-                    fontWeight: FontWeight.bold, fontSize: 16, fontFamily: "Inter", color: Color(0xff333333)
-                  ),)),
-                  SizedBox(width: 5.r),
+      child: Padding(
+        padding: EdgeInsets.all(20.r),
+        child: Column(
+          //mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Flexible(fit: FlexFit.tight, child: Text(myTask.title, style: TextStyle(
+                  fontWeight: FontWeight.bold, fontSize: 16, fontFamily: "Inter", color: Color(0xff333333)
+                ),)),
+                SizedBox(width: 5.r),
 
-                  myTask.priority != null
-                      ? priorityBadge(myTask.priority ?? "")
-                      : SizedBox(height: 0, width: 0),
-                ],
-              ),
-              SizedBox(height: 5.r,),
-              Wrap(
-                spacing: 30.r,
-                runSpacing: 5.r,
-                alignment: WrapAlignment.spaceBetween,
-                runAlignment: WrapAlignment.start,
-                children: [
-                  taskSpecBadge("assets/images/loginIcon.png", "Due in 6 days"),
-                  taskSpecBadge("assets/images/loginIcon.png", "Due in 6 days"),
-                  taskSpecBadge("assets/images/loginIcon.png", "Due in 6 days"),
-                ],
-              ),
-            ],
-          ),
+                myTask.priority != null
+                    ? priorityBadge(myTask.priority ?? "")
+                    : SizedBox(height: 0, width: 0),
+              ],
+            ),
+            SizedBox(height: 5.r,),
+            Wrap(
+              spacing: 30.r,
+              runSpacing: 5.r,
+              alignment: WrapAlignment.spaceBetween,
+              runAlignment: WrapAlignment.start,
+              children: [
+                taskSpecBadge("assets/images/loginIcon.png", "Due in 6 days"),
+                taskSpecBadge("assets/images/loginIcon.png", "Due in 6 days"),
+                taskSpecBadge("assets/images/loginIcon.png", "Due in 6 days"),
+              ],
+            ),
+          ],
         ),
       ),
     ),

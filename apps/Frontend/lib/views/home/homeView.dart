@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:nexus_frontend/controllers/task/taskController.dart';
 import 'package:nexus_frontend/controllers/user/userController.dart';
-import 'package:nexus_frontend/models/taskModel.dart';
 import 'package:nexus_frontend/utils/homeScreenOutlineButton.dart';
 import 'package:nexus_frontend/widgets/sliverAppBar.dart';
 import 'package:nexus_frontend/widgets/taskCard.dart';
@@ -63,15 +62,15 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   Consumer(
                     builder: (context, ref, child) {
                       final allTasks = ref.watch(taskControllerProvider);
-                      return ListView.builder(
-                        itemCount: allTasks?.length ?? 0,
+                      return  allTasks.loading ? CircularProgressIndicator() : ListView.builder(
+                        itemCount: allTasks.currentCategoryTasks.length,
                         shrinkWrap: true,
                         physics: NeverScrollableScrollPhysics(),
                         itemBuilder: (context, index) {
                           return Column(
                             children: [
                               TaskCard(
-                                allTasks?[index] ?? TaskModel(title: "title"),
+                                allTasks.currentCategoryTasks[index],
                                 context,
                               ),
                               SizedBox(height: 5.r),
