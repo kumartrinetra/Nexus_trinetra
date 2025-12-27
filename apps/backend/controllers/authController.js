@@ -2,6 +2,7 @@ import UserModel from "../models/userModel.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv"
+
 dotenv.config();
 
 const generateTokens = (user) => {
@@ -96,6 +97,32 @@ export const refreshAccessToken = async (req, res) => {
     res.status(401).json({ success: false, message: "Refresh token expired or invalid" });
   }
 };
+
+// Get Profile
+export const getCurrentUser = async (req, res) => {
+  try{
+    console.log("hello");
+    
+    const token = req.headers.authorization?.split(" ")[1];
+
+    const decoded = jwt.decode(token);
+
+    const email = decoded.email;
+
+    const user = await UserModel.findOne({email});
+
+    if (!user)
+      return res.status(400).json({ success: false, message: "Invalid email" });
+
+    user.password = undefined;
+
+    res.status(200).json({success: true, user: user});
+  }
+  catch(err)
+  {
+    res.status(500).json({success: false, message: err.message});
+  }
+}
 
 // 4️⃣ Logout
 export const logoutUser = async (req, res) => {
