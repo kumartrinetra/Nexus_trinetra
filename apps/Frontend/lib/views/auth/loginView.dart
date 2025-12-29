@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:nexus_frontend/controllers/auth/authController.dart';
-import 'package:nexus_frontend/controllers/user/userController.dart';
 import 'package:nexus_frontend/services/navigationBarProvider.dart';
 import 'package:nexus_frontend/widgets/myForm.dart';
 import 'package:nexus_frontend/widgets/sliverAppBar.dart';
