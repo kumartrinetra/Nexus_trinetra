@@ -69,7 +69,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   Consumer(
                     builder: (context, ref, child) {
                       final allTasks = ref.watch(taskControllerProvider);
-                      return  allTasks.loading ? const CircularProgressIndicator() : ListView.builder(
+                      return  allTasks.loading ? Center(child: const CircularProgressIndicator()) : ListView.builder(
                         itemCount: allTasks.currentCategoryTasks.length,
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:nexus_frontend/controllers/task/taskController.dart';
+import 'package:nexus_frontend/views/tasks/addTask.dart';
 import 'package:nexus_frontend/widgets/navigationBar.dart';
 import 'package:nexus_frontend/widgets/sliverAppBar.dart';
 import 'package:nexus_frontend/widgets/taskCard.dart';
@@ -62,7 +63,11 @@ class _TaskViewState extends ConsumerState<TaskView> {
       ),
       floatingActionButton: FloatingActionButton(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) {
+            return AddTaskView();
+          }));
+        },
         child: Container(
           height: 60.r,
           width: 60.r,

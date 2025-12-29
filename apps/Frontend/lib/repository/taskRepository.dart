@@ -13,7 +13,7 @@ class TaskRepository{
   Future<List<TaskModel>?> getAllTasks() async
   {
     try{
-      print("hello");
+
       final response = await dio.get("/tasks/getalltasks");
 
       final data = response.data;
@@ -25,6 +25,10 @@ class TaskRepository{
         }
 
       final allTasks = data["data"]["tasks"];
+
+
+
+
 
 
       List<TaskModel>? myTasks = List<TaskModel>.from(allTasks.map((task) => TaskModel.fromJson(task)));

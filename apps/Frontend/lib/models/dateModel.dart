@@ -23,6 +23,11 @@ class DateModel{
     };
   }
 
+  factory DateModel.fromString(String jsDate)
+  {
+    return DateModel(year: int.parse(jsDate.substring(0, 4)), month: int.parse(jsDate.substring(5, 7)), day: int.parse(jsDate.substring(8, 10)));
+  }
+
   factory DateModel.fromJson(Map<String, dynamic> json)
   {
     return DateModel(year: json["year"], month: json["month"], day: json["day"], hour: json["hour"], minute: json["minute"], second: json["second"],

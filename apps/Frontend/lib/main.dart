@@ -5,6 +5,8 @@ import 'package:nexus_frontend/controllers/auth/authController.dart';
 import 'package:nexus_frontend/views/auth/loginView.dart';
 import 'package:nexus_frontend/views/mainScreen.dart';
 
+import 'controllers/task/taskController.dart';
+
 
 
 void main() {
@@ -18,6 +20,17 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authControllerProvider);
+    ref.listen<UserState>(authControllerProvider, (previous, next) {
+      if (previous?.authStatus != AuthStatus.authenticated &&
+          next.authStatus == AuthStatus.authenticated) {
+
+        ref.read(taskControllerProvider.notifier).getAllTasks();
+      }
+
+      if (next.authStatus == AuthStatus.unauthenticated) {
+        ref.invalidate(taskControllerProvider);
+      }
+    });
     return ScreenUtilInit(
       minTextAdapt: true,
       splitScreenMode: true,

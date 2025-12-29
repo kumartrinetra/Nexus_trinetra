@@ -16,6 +16,7 @@ class TaskModel {
   DateModel? dateCreated;
   List<String>? tags;
   List<SubtaskModel>? subtasks;
+  double? urgencyScore;
 
   TaskModel({
     required this.title,
@@ -23,6 +24,7 @@ class TaskModel {
     this.id,
     this.category,
     this.priority,
+    this.urgencyScore,
     this.status,
     this.aiScore,
     this.taskLocation,
@@ -41,7 +43,8 @@ class TaskModel {
       "category" : category,
       "priority" : priority,
       "dueDate" : "${dueDate?.year}-${dueDate?.month}-${dueDate?.day}",
-      "subtasks" : subtasks?.map((subtask) => subtask.toJson()).toList()
+      "subtasks" : subtasks?.map((subtask) => subtask.toJson()).toList(),
+      "urgencyScore" : urgencyScore,
     };
   }
 
@@ -53,10 +56,11 @@ class TaskModel {
       category: json["category"],
       priority: json["priority"],
       status: json["status"],
+      urgencyScore: json["urgencyScore"],
       aiScore: json["aiScore"],
       taskLocation: json["location"] == null ? null :  LocationModel.fromJson(json["location"]),
-      dueDate: json["dueDate"] == null ? null : DateModel.fromJson(json["dueDate"]),
-      dateCreated: json["dateCreated"] == null ? null : DateModel.fromJson(json["dateCreated"]),
+      dueDate: json["dueDate"] == null ? null : DateModel.fromString(json["dueDate"]),
+      dateCreated: json["dateCreated"] == null ? null : DateModel.fromString(json["dateCreated"]),
       tags: (json['tags'] as List<dynamic>?)
           ?.map((e) => e.toString())
           .toList(),

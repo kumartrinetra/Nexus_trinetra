@@ -60,7 +60,7 @@ class _EditProfileViewState extends ConsumerState<EditProfileView> {
               padding: EdgeInsets.all(16.r),
               child: Column(
                 children: [
-                  _textField("User Name",  nameController),
+                  _textField("Name",  nameController),
                   _textField("Email",  emailController),
                   _textField("Username",  usernameController),
                   SizedBox(height: 20.r),

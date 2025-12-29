@@ -21,6 +21,7 @@ class AuthController extends StateNotifier<UserState> {
       {
         final UserModel? myUser = await authRepository.getCurrentUser();
         state = state.copyWith(AuthStatus.authenticated, myUser);
+
         return;
       }
 
