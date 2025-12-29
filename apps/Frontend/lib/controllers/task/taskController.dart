@@ -1,5 +1,4 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:nexus_frontend/models/taskModel.dart';
 import 'package:nexus_frontend/repository/taskRepository.dart';
@@ -14,6 +13,8 @@ class TaskController extends StateNotifier<TaskScreenStatus> {
     state = state.copyWith(null, null, null, null, true);
     try{
       final List<TaskModel>? tasks = await taskRepository.getAllTasks();
+
+      print(tasks?[0].category);
 
       final safeTasks = tasks ?? [];
 
@@ -30,9 +31,10 @@ class TaskController extends StateNotifier<TaskScreenStatus> {
       final allCategories = ["All", ...distinct];
       state = state.copyWith("all", safeTasks, safeTasks, allCategories, false);
     }
-        catch(err, st)
+        catch(err)
     {
       print(err.toString());
+
     }
   }
 
@@ -40,6 +42,7 @@ class TaskController extends StateNotifier<TaskScreenStatus> {
   {
     state = state.copyWith(null, null, null, null, true);
     await taskRepository.addNewTask(newTask);
+    await getAllTasks();
     state = state.copyWith(null, null, null, null, false);
   }
 
