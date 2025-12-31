@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:nexus_frontend/controllers/location/locationController.dart';
+import 'package:nexus_frontend/views/map/locationPickerView.dart';
 import 'package:nexus_frontend/widgets/sliverAppBar.dart';
 
-class ContextMapView extends StatelessWidget {
+class ContextMapView extends ConsumerWidget {
   const ContextMapView({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: const Color(0xfff6f7fb),
       body: CustomScrollView(
@@ -22,8 +26,9 @@ class ContextMapView extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.all(16.r),
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  _mapCard(),
+                  Flexible(child: _mapCard(ref)),
                   SizedBox(height: 16.r),
                   _locationCard(),
                   SizedBox(height: 16.r),
@@ -37,21 +42,16 @@ class ContextMapView extends StatelessWidget {
     );
   }
 
-  Widget _mapCard() {
+  Widget _mapCard(WidgetRef ref) {
     return Container(
-      height: 180.r,
+      height: 400.r,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         gradient: const LinearGradient(
           colors: [Color(0xffd4fcf7), Color(0xfffcd6e0)],
         ),
       ),
-      child: const Center(
-        child: Text(
-          "Google Maps Integration",
-          style: TextStyle(fontWeight: FontWeight.w500),
-        ),
-      ),
+      child: Center(child: locationPickingWidget2(ref)),
     );
   }
 
@@ -128,4 +128,42 @@ class ContextMapView extends StatelessWidget {
       ),
     );
   }
+}
+
+
+Consumer locationPickingWidget2(WidgetRef ref)
+{
+  return Consumer( builder: (context, ref, child) {
+    final pickedLocation = ref.watch(locationControllerProvider.select((screenStatus) => screenStatus.currentPos));
+
+    if(pickedLocation.latitude.isNaN || pickedLocation.longitude.isNaN)
+    {
+      return SizedBox(
+        height: 4.h,
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    return Stack(
+      children: [
+        FlutterMap(options: MapOptions(
+            initialCenter: pickedLocation, initialZoom: 2, onTap: (_, point) {
+        }), children: [
+          TileLayer(
+            urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+            userAgentPackageName: "com.example.nexus_frontend",
+          ),
+
+          MarkerLayer(markers: [
+            Marker(point: pickedLocation, child: const Icon(Icons.location_pin), height: 40, width: 40)
+          ])
+        ]),
+        Positioned(bottom: 20.r, left: 20.r, right: 20.r, child: ElevatedButton(onPressed: (){
+          Navigator.pop(context);
+        }, child: Text("Confirm Location")))
+      ],
+    );
+  },
+
+  );
 }
