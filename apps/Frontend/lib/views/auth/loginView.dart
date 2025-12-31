@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:nexus_frontend/controllers/auth/authController.dart';
-import 'package:nexus_frontend/controllers/user/userController.dart';
 import 'package:nexus_frontend/services/navigationBarProvider.dart';
 import 'package:nexus_frontend/widgets/myForm.dart';
 import 'package:nexus_frontend/widgets/sliverAppBar.dart';
@@ -51,13 +50,9 @@ class _LoginViewState extends ConsumerState<LoginView> {
             () async {
               await ref
                   .read(authControllerProvider.notifier)
-                  .login(emailController.text, passwordController.text);
+                  .login(emailController.text.trim(), passwordController.text.trim());
 
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (_) => const MainScreen()),
-                    (_) => false,
-              );
+
 
 
               // ref
@@ -65,7 +60,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
               //     .changeScreen(1); // Home
             },
             [emailController, passwordController],
-            authState.authStatus,
+            authState.authStatus, ref
           ),
 
           /// CONTINUE TO HOME

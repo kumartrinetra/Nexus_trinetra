@@ -4,23 +4,25 @@ import 'package:flutter_riverpod/legacy.dart';
 import 'package:nexus_frontend/models/userModel.dart';
 import 'package:nexus_frontend/repository/authRepository.dart';
 
-enum AuthStatus { unknown, authenticated, unauthenticated, loading }
+enum AuthStatus { unknown, authenticated, unauthenticated, loading, notRegistered, starting }
 
 class AuthController extends StateNotifier<UserState> {
   final AuthRepository authRepository;
 
-  AuthController(this.authRepository) : super(UserState(authStatus: AuthStatus.unknown, currentUser: null)) {
+  AuthController(this.authRepository) : super(UserState(authStatus: AuthStatus.starting, currentUser: null)) {
     _checkAuth();
   }
 
   Future<void> _checkAuth() async {
-    state = state.copyWith(AuthStatus.loading, null);
+    await Future.delayed(Duration(seconds: 3));
+    state = state.copyWith(AuthStatus.unauthenticated, null);
     final loggedIn = await authRepository.isLoggedIn();
 
     if(loggedIn)
       {
         final UserModel? myUser = await authRepository.getCurrentUser();
         state = state.copyWith(AuthStatus.authenticated, myUser);
+
         return;
       }
 
@@ -56,7 +58,12 @@ class AuthController extends StateNotifier<UserState> {
 
   Future<void> registerUser(UserModel user) async{
     state = state.copyWith(AuthStatus.loading, null);
-    await authRepository.registerUser(user);
+    final registered = await authRepository.registerUser(user);
+    if(!registered)
+      {
+        state = state.copyWith(AuthStatus.notRegistered, null);
+        return;
+      }
     final myUser = await authRepository.getCurrentUser();
     state = state.copyWith(AuthStatus.authenticated, myUser);
   }
@@ -65,6 +72,16 @@ class AuthController extends StateNotifier<UserState> {
   Future<void> logout() async {
     state = state.copyWith(AuthStatus.loading, null);
     await authRepository.logout();
+    state = state.copyWith(AuthStatus.unauthenticated, null);
+  }
+
+  void goToRegisterScreen()
+  {
+    state = state.copyWith(AuthStatus.notRegistered, null);
+  }
+
+  void goToLoginScreen()
+  {
     state = state.copyWith(AuthStatus.unauthenticated, null);
   }
 }

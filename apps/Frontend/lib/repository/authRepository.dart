@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nexus_frontend/models/userModel.dart';
 import 'package:nexus_frontend/services/dioProvider.dart';
@@ -29,6 +30,8 @@ class AuthRepository {
 
       await tokenStorage.saveAccessToken(data["tokens"]["accessToken"]);
       await tokenStorage.saveRefreshToken(data["tokens"]["refreshToken"]);
+      
+
 
       return true;
 
@@ -38,16 +41,21 @@ class AuthRepository {
     }
   }
 
-  Future<void> registerUser(UserModel user) async {
+  Future<bool> registerUser(UserModel user) async {
     try {
       final response = await dio.post("/auth/register", data: user.toJson());
+
+      if(response.statusCode != 201)
+        {
+          return false;
+        }
       await tokenStorage.saveAccessToken(response.data["tokens"]["accessToken"]);
       await tokenStorage.saveRefreshToken(response.data["tokens"]["refreshToken"]);
 
-
+      return true;
     } on DioException catch (e) {
       print(e.response?.data ?? e.message);
-
+      return false;
     }
   }
 

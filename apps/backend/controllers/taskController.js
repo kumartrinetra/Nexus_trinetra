@@ -81,6 +81,8 @@ export const createTask = async (req, res) => {
       status: "Pending",
     });
 
+    
+
     await UserModel.findByIdAndUpdate(userId, {
       $push: { tasks: task._id },
     });
@@ -168,7 +170,7 @@ export const getAllUserTasks = async (req, res) => {
 /**
  * GET TASK BY ID
  */
-export const getTaskById = async (req, res) => {
+export const getTaskById = async (req, res) => { 
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
     return res.status(400).json({
       success: false,
