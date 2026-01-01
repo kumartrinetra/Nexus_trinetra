@@ -60,6 +60,9 @@ export const createTask = async (req, res) => {
 
       placeId = place._id;
 
+      console.log(placeId);
+      
+
       await UserModel.findByIdAndUpdate(userId, {
         $push: { savedPlaces: place._id },
       });
@@ -141,6 +144,7 @@ export const getAllUserTasks = async (req, res) => {
         tasks: tasks.map(t => ({
           id: t._id,
           title: t.title,
+
           description: t.description,
           status: t.status.toLowerCase(),
           priority: t.priority,
@@ -148,6 +152,7 @@ export const getAllUserTasks = async (req, res) => {
           estimatedDuration: t.estimatedDuration,
           category: t.category,
           tags: t.tags,
+          location: t.location,
           createdAt: t.createdAt,
           updatedAt: t.updatedAt,
         })),
