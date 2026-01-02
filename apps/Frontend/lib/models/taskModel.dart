@@ -17,14 +17,19 @@ class TaskModel {
   List<String>? tags;
   List<SubtaskModel>? subtasks;
   double? urgencyScore;
+  double? distanceBetween;
+  String? distanceUnit;
+
 
   TaskModel({
     required this.title,
     this.description,
     this.id,
     this.category,
+    this.distanceBetween,
     this.priority,
     this.urgencyScore,
+    this.distanceUnit,
     this.status,
     this.aiScore,
     this.taskLocation,
@@ -45,7 +50,7 @@ class TaskModel {
       "dueDate" : dueDate?.toIso8601String(),
       "subtasks" : subtasks?.map((subtask) => subtask.toJson()).toList(),
       "urgencyScore" : urgencyScore,
-
+      "linkedLocation" : taskLocation?.toJson(),
     };
   }
 
@@ -59,7 +64,7 @@ class TaskModel {
       status: json["status"],
       urgencyScore: json["urgencyScore"],
       aiScore: json["aiScore"],
-      taskLocation: json["location"] == null ? null :  LocationModel.fromJson(json["location"]),
+      taskLocation: json["location"] == null ? null :  LocationModel.fromJson(json["location"]["location"]),
       dueDate: json["dueDate"] == null ? null : DateTime.parse(json["dueDate"]),
       dateCreated: json["dateCreated"] == null ? null : DateModel.fromString(json["dateCreated"]),
       tags: (json['tags'] as List<dynamic>?)
