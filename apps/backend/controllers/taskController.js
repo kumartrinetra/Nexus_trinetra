@@ -11,7 +11,6 @@ console.log("🔥 RUNNING TASKCONTROLLER FROM:", import.meta.url);
  */
 export const createTask = async (req, res) => {
   try {
-    // MUST be let (values are normalized)
     let {
       title,
       description,
@@ -33,7 +32,6 @@ export const createTask = async (req, res) => {
       });
     }
 
-    // normalize inputs
     const normalizedPriority = priority ? priority.toLowerCase() : "medium";
 
     const parsedDate = dueDate ? new Date(dueDate) : null;
@@ -46,7 +44,6 @@ export const createTask = async (req, res) => {
 
     let placeId = null;
 
-    // linked location (optional)
     if (linkedLocation?.lat && linkedLocation?.lng) {
       const place = await PlaceModel.create({
         user: userId,
@@ -80,8 +77,6 @@ export const createTask = async (req, res) => {
       location: placeId,
       status: "Pending",
     });
-
-    
 
     await UserModel.findByIdAndUpdate(userId, {
       $push: { tasks: task._id },
@@ -170,7 +165,7 @@ export const getAllUserTasks = async (req, res) => {
 /**
  * GET TASK BY ID
  */
-export const getTaskById = async (req, res) => { 
+export const getTaskById = async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
     return res.status(400).json({
       success: false,
@@ -180,17 +175,19 @@ export const getTaskById = async (req, res) => {
 
   const task = await TaskModel.findById(req.params.id).populate("location");
 
-  if (!task)
+  if (!task) {
     return res.status(404).json({
       success: false,
       error: { message: "Task not found." },
     });
+  }
 
-  if (task.user.toString() !== req.user.id)
+  if (task.user.toString() !== req.user.id) {
     return res.status(403).json({
       success: false,
       error: { message: "Not authorized." },
     });
+  }
 
   return res.status(200).json({
     success: true,
@@ -211,17 +208,19 @@ export const updateTask = async (req, res) => {
 
   const task = await TaskModel.findById(req.params.id);
 
-  if (!task)
+  if (!task) {
     return res.status(404).json({
       success: false,
       error: { message: "Task not found." },
     });
+  }
 
-  if (task.user.toString() !== req.user.id)
+  if (task.user.toString() !== req.user.id) {
     return res.status(403).json({
       success: false,
       error: { message: "Not authorized." },
     });
+  }
 
   if (req.body.priority) {
     req.body.priority = req.body.priority.toLowerCase();
@@ -241,7 +240,7 @@ export const updateTask = async (req, res) => {
 };
 
 /**
- * MARK TASK COMPLETE
+ * MARK SINGLE TASK COMPLETE
  */
 export const markTaskComplete = async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
@@ -253,17 +252,19 @@ export const markTaskComplete = async (req, res) => {
 
   const task = await TaskModel.findById(req.params.id);
 
-  if (!task)
+  if (!task) {
     return res.status(404).json({
       success: false,
       error: { message: "Task not found." },
     });
+  }
 
-  if (task.user.toString() !== req.user.id)
+  if (task.user.toString() !== req.user.id) {
     return res.status(403).json({
       success: false,
       error: { message: "Not authorized." },
     });
+  }
 
   task.status = "Completed";
   await task.save();
@@ -279,6 +280,43 @@ export const markTaskComplete = async (req, res) => {
 };
 
 /**
+ * MARK MULTIPLE TASKS COMPLETE (BULK)
+ */
+export const markTasksCompletedBulk = async (req, res) => {
+  try {
+    const { taskIds } = req.body;
+    const userId = req.user.id;
+
+    if (!Array.isArray(taskIds) || taskIds.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: { message: "taskIds must be a non-empty array" },
+      });
+    }
+
+    const validTaskIds = taskIds.filter(id =>
+      mongoose.Types.ObjectId.isValid(id)
+    );
+
+    const result = await TaskModel.updateMany(
+      { _id: { $in: validTaskIds }, user: userId },
+      { $set: { status: "Completed" } }
+    );
+
+    return res.status(200).json({
+      success: true,
+      updatedCount: result.modifiedCount,
+    });
+  } catch (err) {
+    console.error("BULK COMPLETE ERROR:", err);
+    return res.status(500).json({
+      success: false,
+      error: { message: err.message },
+    });
+  }
+};
+
+/**
  * DELETE TASK
  */
 export const deleteTask = async (req, res) => {
@@ -291,17 +329,19 @@ export const deleteTask = async (req, res) => {
 
   const task = await TaskModel.findById(req.params.id);
 
-  if (!task)
+  if (!task) {
     return res.status(404).json({
       success: false,
       error: { message: "Task not found." },
     });
+  }
 
-  if (task.user.toString() !== req.user.id)
+  if (task.user.toString() !== req.user.id) {
     return res.status(403).json({
       success: false,
       error: { message: "Not authorized." },
     });
+  }
 
   await UserModel.findByIdAndUpdate(task.user, {
     $pull: { tasks: task._id },
@@ -314,3 +354,4 @@ export const deleteTask = async (req, res) => {
     message: "Task deleted successfully",
   });
 };
+ 

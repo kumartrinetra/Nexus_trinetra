@@ -6,6 +6,7 @@ import {
   updateTask,
   deleteTask,
   markTaskComplete,
+  markTasksCompletedBulk,
 } from "../controllers/taskController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
@@ -13,39 +14,46 @@ const router = express.Router();
 
 /**
  * CREATE TASK
- * POST /api/tasks/createtask
+ * POST /api/tasks
  */
-router.post("/createtask", protect, createTask);
+router.post("/", protect, createTask);
 
 /**
  * GET ALL TASKS
- * GET /api/tasks/getalltasks
- * Optional query params: status, priority, limit, offset
+ * GET /api/tasks
  */
-router.get("/getalltasks", protect, getAllUserTasks);
+router.get("/", protect, getAllUserTasks);
+
+/**
+ * MARK MULTIPLE TASKS AS COMPLETED (BULK) ✅
+ * POST /api/tasks/complete
+ * Body: { taskIds: [] }
+ */
+router.post("/complete", protect, markTasksCompletedBulk);
+
+/**
+ * MARK SINGLE TASK AS COMPLETED
+ * POST /api/tasks/:id/complete
+ */
+router.post("/:id/complete", protect, markTaskComplete);
 
 /**
  * GET TASK BY ID
- * GET /api/tasks/gettask/:id
+ * GET /api/tasks/:id
  */
-router.get("/gettask/:id", protect, getTaskById);
+router.get("/:id", protect, getTaskById);
 
 /**
  * UPDATE TASK
- * PUT /api/tasks/updatetask/:id
+ * PUT /api/tasks/:id
  */
-router.put("/updatetask/:id", protect, updateTask);
-
-/**
- * MARK TASK AS COMPLETED ✅
- * POST /api/tasks/completetask/:id
- */
-router.post("/completetask/:id", protect, markTaskComplete);
+router.put("/:id", protect, updateTask);
 
 /**
  * DELETE TASK
- * DELETE /api/tasks/deletetask/:id
+ * DELETE /api/tasks/:id
  */
-router.delete("/deletetask/:id", protect, deleteTask);
+router.delete("/:id", protect, deleteTask);
 
 export default router;
+ 
